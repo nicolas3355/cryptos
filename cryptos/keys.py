@@ -27,6 +27,35 @@ def gen_secret_key(n: int) -> int:
     return key
 
 # -----------------------------------------------------------------------------
+# Secret key generation from bytes.
+
+def gen_secret_key_from_bytes(n: int, secret: bytes) -> int:
+    """
+    Generates a valid secret key for elliptic curve cryptography from a given byte sequence.
+
+    Parameters:
+    - n (int): The upper bound on the key, typically representing the order of the elliptic curve being used.
+    The function ensures that the generated key is valid, i.e., 1 <= key < n.
+    - secret (bytes): The initial byte sequence from which the secret key is derived. This byte sequence
+    is used to generate an integer value that, if within the valid range, becomes the secret key.
+
+    Returns:
+    - int: A valid secret key derived from the provided byte sequence, where 1 <= key < n. If the initial
+    conversion of `secret` to an integer does not yield a valid key, the function repeatedly hashes `secret`
+    using SHA-256 until a valid key is obtained.
+
+    Note: The function employs a while loop to continually hash the `secret` using SHA-256 and convert it
+    to an integer until a valid key within the specified range is generated.
+    """
+    while True:
+        key = int.from_bytes(secret, 'big')
+        if 1 <= key < n:
+            break # the key is valid, break out
+        secret = sha256(secret)
+    return key
+
+
+# -----------------------------------------------------------------------------
 # Public key - specific functions, esp encoding / decoding
 
 class PublicKey(Point):
